@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <header class="navbar-header">
@@ -40,7 +40,7 @@
                 </div>
                 <div class="hero-image">
                     <div class="profile-glow">
-                        <img src="1.jpg" alt="Profile Photo" class="profile-img">
+                        <img src="{{ url_for('static', filename='1.jpg') }}" alt="Profile Photo" class="profile-img">
                     </div>
                 </div>
             </div>
@@ -203,6 +203,6 @@
 
     <div class="particles" id="particles"></div>
 
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
