@@ -14,10 +14,21 @@ function createParticles() {
     }
 }
 
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const navList = document.querySelector('.nav-list');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    
+    navList.classList.toggle('active');
+    menuToggle.classList.toggle('active');
+}
+
 // Section switching
 function showSection(sectionId) {
     const sections = document.querySelectorAll('.section');
     const navLinks = document.querySelectorAll('.nav-link');
+    const navList = document.querySelector('.nav-list');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
 
     sections.forEach(section => {
         section.classList.remove('active');
@@ -36,6 +47,12 @@ function showSection(sectionId) {
 
     if (activeLink) {
         activeLink.classList.add('active');
+    }
+
+    // Close mobile menu when selecting a section
+    if (navList.classList.contains('active')) {
+        navList.classList.remove('active');
+        menuToggle.classList.remove('active');
     }
 
     // Smooth scroll to top
@@ -97,13 +114,75 @@ function initFormSubmission() {
     });
 }
 
+// Detect device type
+function detectDevice() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const isTablet = /ipad|android(?!.*mobile)|tablet/i.test(userAgent);
+    
+    document.body.classList.add(isMobile ? 'mobile-device' : 'desktop-device');
+    if (isTablet) document.body.classList.add('tablet-device');
+    
+    return { isMobile, isTablet };
+}
+
+// Adjust particles based on device
+function createParticlesResponsive() {
+    const { isMobile } = detectDevice();
+    const particlesContainer = document.getElementById('particles');
+    // Fewer particles on mobile for better performance
+    const particleCount = isMobile ? 20 : 50;
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 10 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// Close mobile menu when clicking outside
+function handleClickOutside(event) {
+    const navList = document.querySelector('.nav-list');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const navbar = document.querySelector('.navbar');
+    
+    if (navList.classList.contains('active') && 
+        !navbar.contains(event.target)) {
+        navList.classList.remove('active');
+        menuToggle.classList.remove('active');
+    }
+}
+
+// Handle orientation change
+function handleOrientationChange() {
+    const navList = document.querySelector('.nav-list');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    
+    // Close menu on orientation change
+    if (navList.classList.contains('active')) {
+        navList.classList.remove('active');
+        menuToggle.classList.remove('active');
+    }
+}
+
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    createParticles();
+    createParticlesResponsive();
     initIntersectionObserver();
     initTypingEffect();
     initFormSubmission();
     showSection('home');
+    
+    // Add click outside listener
+    document.addEventListener('click', handleClickOutside);
+    
+    // Add orientation change listener
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
 });
 
 // Add CSS for particles
