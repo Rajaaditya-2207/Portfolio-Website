@@ -23,40 +23,44 @@ function toggleMobileMenu() {
     menuToggle.classList.toggle('active');
 }
 
-// Section switching
-function showSection(sectionId) {
-    const sections = document.querySelectorAll('.section');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const navList = document.querySelector('.nav-list');
-    const menuToggle = document.querySelector('.mobile-menu-toggle');
-
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-
+// Handle anchor nav links: smooth scroll and active link state
+function handleNavLinks() {
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
     navLinks.forEach(link => {
-        link.classList.remove('active');
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            const target = document.querySelector(href);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            // Close mobile menu when selecting a section
+            const navList = document.querySelector('.nav-list');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            if (navList && navList.classList.contains('active')) {
+                navList.classList.remove('active');
+                if (menuToggle) menuToggle.classList.remove('active');
+            }
+        });
     });
 
-    const targetSection = document.getElementById(sectionId + '-section');
-    const activeLink = document.querySelector(`.nav-link[data-section="${sectionId}"]`);
+    // Update active link on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                const active = document.querySelector(`.nav-link[href="#${id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { threshold: 0.6 });
 
-    if (targetSection) {
-        targetSection.classList.add('active');
-    }
-
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
-
-    // Close mobile menu when selecting a section
-    if (navList.classList.contains('active')) {
-        navList.classList.remove('active');
-        menuToggle.classList.remove('active');
-    }
-
-    // Smooth scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    sections.forEach(sec => observer.observe(sec));
 }
 
 // Intersection Observer for animations
@@ -175,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initIntersectionObserver();
     initTypingEffect();
     initFormSubmission();
-    showSection('home');
+    handleNavLinks();
     
     // Add click outside listener
     document.addEventListener('click', handleClickOutside);
